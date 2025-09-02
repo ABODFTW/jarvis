@@ -1,19 +1,17 @@
-import os
 import logging
 import time
 import pyttsx3
 from dotenv import load_dotenv
 import speech_recognition as sr
-from langchain_ollama import ChatOllama, OllamaLLM
+from langchain_ollama import ChatOllama
 
 # from langchain_openai import ChatOpenAI # if you want to use openai
-from langchain_core.messages import HumanMessage
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
 
 # importing tools
 from tools.time import get_time
-from tools.ocr import read_text_from_latest_image
+from tools.OCR import read_text_from_latest_image
 from tools.arp_scan import arp_scan_terminal
 from tools.duckduckgo import duckduckgo_search_tool
 from tools.matrix import matrix_mode
