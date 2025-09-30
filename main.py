@@ -1,21 +1,24 @@
 import logging
 import time
+
 import pyttsx3
-from dotenv import load_dotenv
 import speech_recognition as sr
-from langchain_ollama import ChatOllama
+from dotenv import load_dotenv
 
 # from langchain_openai import ChatOpenAI # if you want to use openai
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
 
-# importing tools
-from tools.time import get_time
-from tools.OCR import read_text_from_latest_image
+from local_whisper import recognize_whisper
 from tools.arp_scan import arp_scan_terminal
 from tools.duckduckgo import duckduckgo_search_tool
 from tools.matrix import matrix_mode
+from tools.OCR import read_text_from_latest_image
 from tools.screenshot import take_screenshot
+
+# importing tools
+from tools.time import get_time
 
 load_dotenv()
 
@@ -37,7 +40,14 @@ llm = ChatOllama(model="qwen3:1.7b", reasoning=False)
 # llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key, organization=org_id) for openai
 
 # Tool list
-tools = [get_time, arp_scan_terminal, read_text_from_latest_image, duckduckgo_search_tool, matrix_mode, take_screenshot]
+tools = [
+    get_time,
+    arp_scan_terminal,
+    read_text_from_latest_image,
+    duckduckgo_search_tool,
+    matrix_mode,
+    take_screenshot,
+]
 
 # Tool-calling prompt
 prompt = ChatPromptTemplate.from_messages(
@@ -86,7 +96,7 @@ def write():
                     if not conversation_mode:
                         logging.info("🎤 Listening for wake word...")
                         audio = recognizer.listen(source, timeout=10)
-                        transcript = recognizer.recognize_google(audio)
+                        transcript = recognize_whisper(audio, language="en")
                         logging.info(f"🗣 Heard: {transcript}")
 
                         if TRIGGER_WORD.lower() in transcript.lower():
@@ -99,7 +109,7 @@ def write():
                     else:
                         logging.info("🎤 Listening for next command...")
                         audio = recognizer.listen(source, timeout=10)
-                        command = recognizer.recognize_google(audio)
+                        command = recognize_whisper(audio, language="en")
                         logging.info(f"📥 Command: {command}")
 
                         logging.info("🤖 Sending command to agent...")
